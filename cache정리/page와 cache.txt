@@ -1,0 +1,34 @@
+MMU(Memory Management Unit)의 TLB 를 이용한 가상주소(Virtual Address)의 물리주소 변환
+BY CLOUDRAIN21 · 2014년 4월 22일
+
+CPU 에서는 대부분 가상주소를 사용합니다.
+
+CPU 가 특정 task 의 가상주소를 이용하여 실제 물리주소로 변환하고 물리 메모리의 데이터를 가져오기 위한 과정이 다음의 그림 한장에 잘 나타나 있습니다.
+
+
+http://www.cs.rpi.edu/academics/courses/fall04/os/c12/index.html
+
+과정을 살펴볼까요 ? 원문을 번역해보겠습니다.
+
+The CPU generates a virtual address. First, the TLB is searched to see if the address of the physical address is cached. If there is a hit, we know the physical address. The next step is to search the cache to see if the value is in the cache. If there is a hit, this value is returned to the CPU. In most cases, both of these queries are hits and so the value can be returned quickly without accessing main memory.
+
+CPU 가 가상주소를 발생시킨다.
+첫번째로, 물리주소가 caching 되어 있는지를 확인하기 위해 TLB(Translation Lookaside Buffer)를 검색한다. 만약 hit 되면 곧바로 물리주소를 얻을 수 있다. 그 다음은 실제 value 가 있는지 cache 를 검색하면 된다. 만약 이 cache 에서 hit 되면 해당 값을 CPU 에게 리턴하면 된다. 대부분 이 두가지 조회(TLB 와 cache)는 hit 될 것이고, value 는 main memory 에 대한 접근없이도 빠르게 리턴될 수 있다.
+
+If the TLB does not have a pointer to the page that contains the virtual address, the next step is to search the actual page table. If there is a hit, then we can generate the physical address and so we search the cache to determine if this value is in the cache. We also will add this page to the TLB.
+
+만약 TLB 가 CPU 가 찾는 가상주소에 대한 목록을 가지고 있지 않다면, 실제 page table 을 검색해야 한다. 만약, page table 을 검색하여 해당 가상주소에 대한 물리주소를 얻을 수 있다면, 그 물리주소를 이용하여 value 가 cache 에 올라와있는지 찾을 수 있다. 그리고, TLB 에 해당 page 를 추가한다.
+
+If the page is not in the page table, then a page fault is generated. In this case, the page will be read in from the disk, the page table will be updated, and the TLB will be updated.
+
+만약 page table 에 없으면 page fault 가 발생한다. 이 경우는 page 를 disk 로부터 읽어서 page table 을 갱신하고 TLB 또한 갱신한다.
+
+아래의 흐름을 알아야 합니다.
+
+(1) CPU 와 Cache 사이에 MMU 가 있다는 것과,
+(2) cache 는 물리주소를 사용한다는 것,
+(3) 그리고 MMU 는 CPU 로 부터 main memory 의 page table 을 가리키는 register 값과 가상주소를 입력으로 받는다는 것,
+(4) TLB 는 page table entry 가 caching 된 것이라는 것,
+(5) TLB 자체만으로는 물리주소를 얻을 수 있을 뿐이고 실제 데이터는 cache 에서 찾아야한다는 것,
+(6) cache 에서 데이터를 못찾으면 main memory 에서 찾아야하고 이 때 data 가 caching 된다는 것,
+(7) main memory 에조차 data 가 없다면 page fault 를 발생시키고 disk 에서 memory 로 읽어들여야한다는 것...
